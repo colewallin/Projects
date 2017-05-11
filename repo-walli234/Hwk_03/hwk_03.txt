@@ -1,0 +1,287 @@
+QUESTION 1:
+
+let rec power n x =
+  match n with
+  |0 -> 1.0
+  |_ -> x *. power (n-1) x
+
+Inductive Hypothesis:
+P(n, x): \forall n such that n is contained in the positive integers
+        power n x = x^n
+
+
+Base Case: n = 0
+------------------
+
+P(0, x): (
+
+    power 0 x
+
+	= 1.0, by the properties of power
+
+	= x^0, by the properties of exponents
+
+  )
+
+Inductive Case: n = A positive integer > 0
+------------------------------------------
+Show: P(n, x):
+		power n x = x^n
+
+P(n, x): \forall n such that n is contained in the positive integers
+    power (n) x
+	= x *. (power (n-1) x)  by the properties of power
+	= x *. x^(n-1), by the inductive hypothesis
+	= x^n by the properties of multiplication and exponents
+
+===============================================================================
+QUESTION 2:
+
+type nat = Zero | Succ of Nat
+
+let toInt = function
+  | Zero -> 0
+  | Succ n -> 1 + toInt(n)
+
+let rec power n x = match n with
+  | Zero -> 1.0
+  | Succ n' -> x *. power n' x
+
+
+power n x = x ^ toInt(n)
+
+Show: toInt(n:nat) = n
+
+P(n): \forall n such that n is contained in the positive integers
+	toInt(Succ n-1) = n	
+
+
+Base Case: Zero
+---------
+
+P(Zero) : (
+  power 0 x
+= x^0, by the previous proof of power
+= x^toInt(Zero), by the def. of nat
+)
+
+Inductive Case: P(n)
+ n = Succ(Succ( ... Succ(Zero) ))
+--------------
+
+P(n): \forall n such that n is a positive integer 
+(
+
+  power n x
+= x^n, by the previous proof of power
+= x^((n-1)+1), by adding 1 and subtracting 1
+= x^(toInt(Succ n-2) + 1), by the inductive hypothesis
+= x^(toInt(Succ n-1)), by the definition of toInt
+
+================================================================================
+QUESTION 3:
+
+let rec length = function
+  | [] -> 0
+  | x:xs -> 1 + length xs
+
+P(l1, l2):  length(l1 @ l2) = length l1 + length l2
+
+P(l1): \for all l2 in a 'a list
+	length(l1 @ l2) = length l1 + length l2
+
+Base Case:  l1 = []
+---------
+
+P([]) :
+\for l2 in a 'a list
+
+  length ([] @ l2)
+= length l2 by the properties of lists
+= 0 + length l2  by the additive identity property
+= length [] + length l2 by the def. of length
+
+
+Inductive Case: l1 = h::t
+---------------
+
+show: P(h::t): \forall l2 in a 'a list
+		length((h::t) @ l2) = length(h::t) + length l2
+
+given: P(t) : \forall l2 in a 'a list
+		length(t @ l2) = length t + length l2
+
+\forall l2 in a 'a list . (
+
+  length ((h::t) @ l2)
+
+= length ( h :: (t @ l2 ) ), by properties of lists and append
+
+= 1 + length ( t @ l2 ), by def of length
+
+= 1 + length t + length l2, by inductive hypothesis
+
+= length (h::t) + length l2, by def of length	)
+
+================================================================================
+QUESTION 4:
+
+let rec reverse l = match l with
+  | [] ->  []
+  | x::xs -> reverse xs @ [x]
+
+
+P(l1):  length(reverse l) = length l
+
+Base Case:  l = []
+---------
+
+P([]) :
+
+  length (reverse [])
+= length [] by the properties of reverse
+
+
+Inductive Case: l = h::t
+---------------
+
+show: P(h::t):
+		length(reverse (h::t)) = length(h::t)
+
+given: P(t) : length(reverse t) = length t
+
+  length( reverse (h::t) )
+= length( reverse t @ [h] ), by the def of reverse
+= length( reverse t ) + length [h], by the previous proof involving length
+= length( reverse t ) + 1, by the definition of length
+= length( t ) + 1, By the inductive hypothesis
+= length(h::t), by the def. of length
+
+================================================================================
+QUESTION 5:
+
+let rec append l1 l2 = match l1 with
+  | [] -> l2
+  | h::t -> h :: (append t l2)
+
+P(l1, l2):  reverse(append(l1 l2)) = append (reverse l2) (reverse l1)
+
+P(l1): \for all l2 in a 'a list
+	reverse(append(l1 l2)) = append (reverse l2) (reverse l1)
+
+Base Case:  l1 = []
+---------
+
+P([]) :
+\for l2 in a 'a list
+
+  reverse(append([] l2))
+= reverse l2 by the def. of append
+= (reverse l2) @ [], by the list identity
+= append (reverse l2) [], by the def. of append
+= append (reverse l2) reverse [], by the def. of reverse
+
+
+Inductive Case: l1 = h::t
+---------------
+
+show: P(h::t): \forall l2 in a 'a list
+		length((h::t) @ l2) = length(h::t) + length l2
+
+given: P(t) : \forall l2 in a 'a list
+
+ reverse(append(h::t l2))
+= reverse (h::append(t l2)), by the def. of append
+= reverse (append(t l2)) @ [h], by the def. of reverse
+= append (reverse l2) (reverse t) @ [h], by the inductive hypothesis
+= append (reverse l2) ((reverse t) @ [h]), by the properties of lists
+= append (reverse l2) (reverse (h::t)), by the def. of reverse
+)
+
+================================================================================
+QUESTION 6:
+
+let rec place e l = match l with
+  | [] -> [e]
+  | x::xs -> if e < x then x::x::xs
+             else x :: (place e xs)
+
+let rec is_elem e l = match l with
+  | [] -> false
+  | x::xs -> e = x || (e > x || x && os_elem e xs)
+
+let rec sorted l = match l with
+  | [] -> true
+  | x::[] -> true
+  | x1::x2::xs ->  x1 <= x2 && sorted x2::xs
+
+P(l): sorted l => sorted (place e l)
+
+Base Case:l = []
+---------
+
+P([]):
+
+  sorted []
+= true, by the def. of sorted
+AND
+  sorted (place e [])
+= sorted ([e]), by the def. of place
+= true, by the def. of sorted
+
+SO
+true => true
+
+Inductive case #1:  l = [x] AND e < x
+-----------------
+
+  sorted [x]
+= true, by the def. of sorted
+AND
+  sorted (place e [x])
+= sorted (e::x), by the def. of place
+= true, by the def. of sorted and the initial conditions
+
+Inductive Case #2: l = [x::v::xs] AND e >= x AND e < v
+-----------------
+  sorted [x::v::xs]
+= true, by the implication
+AND
+  sorted (place(e (x::xs)))
+= sorted (x::e::v::xs), by the def. of place and the initial conditions
+= x <= e && sorted (e::v::xs), by the def. of sorted
+= true && e <= v && sorted (v::xs), by the def. of sorted and the initial conditions
+= true && true && true, by the initial conditions
+= true, by the properties of boolean operators
+
+Inductive Case #3: l = [x:: ... ::v::xs] AND e >= x AND e > v
+-----------------
+  sorted [x:: ... ::v::xs]
+= true, by the implication
+AND
+  sorted (place e [x:: ... ::v::xs])
+= sorted (x:: ... ::v::(place e [xs])), by the def. of place
+= true && ... && true && sorted (place e [xs]), by the def. of sorted
+= true && ... && true && true, by the inductive hypothesis
+= true, by the properties of boolean operators
+
+================================================================================
+QUESTION 7
+
+We are able to make this claim because of the way that the place funciton puts
+the element e into the list. Place will put the element e into the list before
+the FIRST element in the list l that is larger than e. This alse means that
+every element before e in the list AFTER it has been placed will also be LESS
+than e.
+
+SO, when is_elem gets called with e on this list, it will check each element
+inorder. The second part of the comparison (e > x && is_elem e xs) will still
+find out if e is in l because at each element x, if e != x then it is guarantee
+ to be greater than x before e is reached in the list by the properties of
+ place.
+
+Yes because we could have a list [1;2;4;1] for example where placing e
+where e =3 would result in the list [1;2;3;4;1] and calling sorted on this list
+would yield false the implication necesitates that the list is initially sorted
+in order to get a true value from calling sorted on the list with e now placed
+into it.
