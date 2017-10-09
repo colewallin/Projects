@@ -45,10 +45,22 @@ char *getAccessModeString ( const mode_t mode, char mstr[] ){
 
 }
 
+// void print_statdata ( const char *filename,  const struct stat  *statdata) {
+// char accessmodes[11];
+//     getAccessModeString(statdata->st_mode, accessmodes);
+//     printf( "%10s %3d %-8s %-8s %8ld %.12s %s\n", accessmodes, statdata->st_nlink, getUserName(statdata->st_uid),  getGroupName(statdata->st_gid), statdata->st_size, (ctime( &(statdata->st_mtime)) + 4), filename);
+// }
+
 void print_statdata ( const char *filename,  const struct stat  *statdata) {
 char accessmodes[11];
     getAccessModeString(statdata->st_mode, accessmodes);
-    printf( "%10s %3d %-8s %-8s %8ld %.12s %s\n", accessmodes, statdata->st_nlink, getUserName(statdata->st_uid),  getGroupName(statdata->st_gid), statdata->st_size, (ctime( &(statdata->st_mtime)) + 4), filename);
+    printf( "Mode:       %s \n", accessmodes);
+    printf( "Link count: %d \n", statdata->st_nlink);
+    printf( "UID:        %s \n", getUserName(statdata->st_uid) ) ;
+    printf( "GID:        %s \n", getGroupName(statdata->st_gid) );
+    printf( "Size:       %-8ld \n", statdata->st_size);
+    printf( "Mod Time:   %.12s \n", ctime( &(statdata->st_mtime) ) + 4 );
+    printf( "Name:       %s \n", filename);
 }
 
 
@@ -58,7 +70,7 @@ char filepathname[256];
 
     sprintf(filepathname, "%s/%s", dirname, filename);
     if ( ! stat( filepathname, &statdata) )  {
-       print_statdata( filename,  &statdata );
+       print_statdata( filename,  &statdata );w
     }
     else {
        fprintf (stderr, "Getting stat for %s", filepathname);
