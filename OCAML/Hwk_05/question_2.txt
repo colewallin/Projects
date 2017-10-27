@@ -1,0 +1,55 @@
+QUESTION 2:
+
+Call by value:  andl (t :: f :: t :: t :: [])
+
+    andl (t :: f :: t :: t :: [])
+= foldl and t (t :: f :: t :: t :: [])
+= foldl and (and t t) (f :: t :: t :: [])
+= foldl and t (f :: t :: t :: [])
+= foldl and (and t f) (t :: t :: [])
+= foldl and f (t :: t :: [])
+= foldl and (and f t) (t :: [])
+= foldl and f (t :: [])
+= foldl and (and f t) ([])
+= foldl and f []
+= f
+
+Call by value: andr (t :: f :: t :: t :: [])
+
+   andr (t :: f :: t :: t :: [])
+= foldr and (t :: f :: t :: t :: []) t
+= and t (foldr and (f :: t :: t :: []) t)
+= and t (and f (foldr and (t :: t :: []) t))
+= and t (and f (and t (foldr and (t :: []) t)))
+= and t (and f (and t (and t (foldr and ([]) t))))
+= and t (and f (and t (and t t)))
+= and t (and f (and t t))
+= and t (and f t)
+= and t f
+= f
+
+Call by name:  andl (t :: f :: t :: t :: [])
+
+   andl (t :: f :: t :: t :: [])
+= foldl and t (t :: f :: t :: t :: [])
+= foldl and (and t t) (f :: t :: t :: [])
+= foldl and (and (and t t) f) (t :: t :: [])
+= foldl and (and (and (and t t) f) t) (t :: [])
+= foldl and (and (and (and (and t t) f) t) t) ([])
+= and (and (and (and t t) f) t) t
+= and (and (and t f) t) t
+= and (and f t) t
+= and f t
+= f
+
+Call by name: andr (t :: f :: t :: t :: [])
+
+   andr (t :: f :: t :: t :: [])
+= foldr and (t :: f :: t :: t :: []) t
+= and t (foldr and (f :: t :: t :: []) t)
+= foldr and (f :: t :: t :: []) t
+= foldr and (f :: t :: t :: []) t
+= and f (foldr and (t :: t :: []) t)
+= f
+
+The call by name evaluation of andr is the most efficient because it runs the least amount of computations. It is able to do this because the outside-in evaluation hits the false in the list with the 'and' function and jumps right to the result without needing to evaluate the rest of the list.
