@@ -1,0 +1,34 @@
+Question 1: (5 points) What are the important data items related to a process that are maintained by
+the kernel for process management?
+
+A: The Kernel maintains a Process Control Block (PCB) which contains the following: Process execution state, process context, I/O status, CPU scheduling information, memory management information, accounting information, pending signals, and signals masked.
+
+
+Question 2: (5 points) For each of the following four cases, identify the conditions under which the
+scheduler will change the status of a process:
+  a. Running to Ready
+    - Another process came into the queue with a higher priority based on the preemptive scheduling criteria.
+    
+  b. Swapped to Running
+    - The process had previously been suspended but now it isn't waiting on an event and there is enough memory to bring the process back up from the disk.
+    
+  c. Running to Waiting (Blocked)
+    - The process was running but now requires some sort of event like input from the user to move any further. The process will wait until it gets what it needs.
+    
+  d. Ready or Waiting to Swapped
+    - The process is swapped out of memory to the disk by the memory management system in order to free up memory for other processes that currently have higher prioity based on the scheduling criteria.
+  
+  
+  
+Question 3: (5 points) When a UNIX process executes fork(), does the child process inherit
+  a. any pending signals of the parent? - NO
+  b. the signal handlers of the parent process? - YES
+  c. the signal mask of the parent? - YES
+  
+  
+  
+Question 4: (5 points) Why is a separate stack in the kernel memory space used for handling system call functions and interrupt handlers for a process, instead of using the process stack?
+  - Mainly for security reasons. The process stack pointer can essentially point to anything it wants to which can be a real issue for the kernel. For system call functions, and interrupt handlers, certain privileges are necessary and the kernel needs to be in control of the stack pointer.
+
+
+
