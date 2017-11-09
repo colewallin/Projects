@@ -1,0 +1,42 @@
+is_elem e (insert e t)
+
+Base Case: t = Empty
+----------
+
+  is_elem e (insert e Empty)
+= ie_elem e (Branch(Empty, e, Empty)), by the def. of insert
+= true, by the definition of is_elem
+
+Inductive Case #1: t = Branch(t1, e', t2) where e = e'
+------------------
+
+  is_elem e (insert e Branch(t1, e', t2))
+= is_elem e (branch(t1, e', t2)), by the def. of insert
+= true, by the def. of is_elem
+
+Inductive Case #2: t = Branch(t1, e', t2) where e < e'
+------------------
+
+  is_elem e ( insert e Branch(t1, e', t2) )
+= is_elem e ( branch(insert e t1, e', t2) ), by the def. of insert
+= is_elem e ( insert e t1 ), by the def. of is_elem and the initial conditions
+= true, by the inductive hypothesis
+
+
+Inductive Case #3: t = Branch(t1, e', t2) where e > e'
+------------------
+
+  is_elem e ( insert e Branch(t1, e', t2) )
+= is_elem e ( branch(t1, e', insert e t2) ), by the def. of insert
+= is_elem e ( insert e t2 ), by the def. of is_elem and the initial conditions
+= true, by the inductive hypothesis
+
+===================================================================================
+
+
+
+1. ∀t P(e, t) if P(e, Empty) and P(e, t1) || P(e, t2) || P(e, e') => P(e, t(t1, e', t2))
+2. is_elem e (insert e t) 
+3. P(e, t) where t is Empty
+4. t = Branch(t1, e', t2)
+5. is_elem e (insert e t1) AND is_elem e (insert e t2)
