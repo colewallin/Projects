@@ -14,7 +14,7 @@
 #include <unistd.h>
 #include <string.h>
 
-#define SERVER_PORT 6003 /* CHANGE THIS TO THE PORT OF YOUR SERVER */
+#define SERVER_PORT 6005 /* CHANGE THIS TO THE PORT OF YOUR SERVER */
 #define BUFFER_SIZE 1024
 
 /**********************************************************************
