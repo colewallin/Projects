@@ -14,7 +14,7 @@
 #include <unistd.h>
 #include <string.h>
 
-#define SERVER_PORT 6005 /* CHANGE THIS TO THE PORT OF YOUR SERVER */
+// #define SERVER_PORT 6005 /* CHANGE THIS TO THE PORT OF YOUR SERVER */
 #define BUFFER_SIZE 1024
 
 /**********************************************************************
@@ -23,6 +23,7 @@
 
 int main(int argc, char *argv[]) {
 
+  int SERVER_PORT;
   int sock;                    /* fd for socket connection */
   struct sockaddr_in server;   /* Socket info. for server */
   struct hostent *host;        /* Server info */
@@ -31,9 +32,17 @@ int main(int argc, char *argv[]) {
   char response[BUFFER_SIZE];  /* String rec'd from server */
   int finished = 0;
 
-  if (argc != 2) {
-    printf("Usage: %s address\n", argv[0]);
+  /* Make sure proper number of input arguments*/
+  if (argc == 1) {
+    printf("Usage: %s address PortNumber(6789)\n", argv[0]);
+    exit(1);
   }
+  else if (argc == 2) {
+    printf("Usage: %s %s PortNumber(6789)\n", argv[0], argv[1]);
+    exit(1);
+  }
+
+  SERVER_PORT = atoi(argv[2]);
 
   /* Fill out sockaddr struct */
   server.sin_family = AF_INET;

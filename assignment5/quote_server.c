@@ -24,7 +24,7 @@
 
 
 #define TRUE 1
-#define SERVER_PORT 6005
+#define SERVER_PORT 6789
 #define BUFFER_SIZE 1024
 
 
@@ -32,21 +32,36 @@
 void die(const char *);
 void pdie(const char *);
 
-void readConfig(char **, char **);
+void readConfig(char **, char **, char *);
 
 void * threadhandler(void * new_sock);
+
+struct socket_context
+{
+    int sock_fd;
+    char configFileName[BUFFER_SIZE];
+};
+typedef struct socket_context client_sock_context;
+
 
 /**********************************************************************
  * main
  **********************************************************************/
 
-int main(void) {
+int main(int argc, char *argv[]) {
   int sock;                    /* fd for main socket */
   int msgsock;                 /* fd from accept return */
 	int *new_sock;							 /* To keep track of the new clients. */
   struct sockaddr_in server;   /* socket struct for server connection */
   struct sockaddr_in client;   /* socket struct for client connection */
   int clientLen;               /* returned length of client from accept() */
+
+
+  /* Make sure proper number of input arguments*/
+  if (argc == 1) {
+    printf("Usage: %s configFileName\n", argv[0]);
+    exit(1);
+  }
 
 
   /* Open a socket */
@@ -81,13 +96,16 @@ int main(void) {
 			/* Create a thread to handle the I/O */
 			pthread_t tid;
 			pthread_attr_t attr;
-			new_sock = malloc(sizeof *new_sock);
-			*new_sock = msgsock;
+			// new_sock = malloc(sizeof *new_sock);
+			// *new_sock = msgsock;
+      client_sock_context* client_sock = (client_sock_context*) malloc(sizeof(client_sock_context));
+      client_sock->sock_fd = msgsock;
+      strcpy(client_sock->configFileName, argv[1]);
 
 			pthread_attr_init(&attr);
 			pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
 			pthread_attr_setscope(&attr, PTHREAD_SCOPE_SYSTEM);
-			if (pthread_create(&tid, &attr, threadhandler, (void*) new_sock) != 0)
+			if (pthread_create(&tid, &attr, threadhandler, client_sock) != 0)
       {
         perror("pthread_create");
         exit(1);
@@ -104,9 +122,13 @@ int main(void) {
  * threadhandler --- Handle the I/O interaction with the client
  **********************************************************************/
 
-void * threadhandler(void * new_sock) {
-	int socket_fd = *(int*)new_sock;
-	printf("socket_fd is: %d\n", socket_fd);
+void * threadhandler(void * arg) {
+	// int socket_fd = *(int*)new_sock;
+	// printf("socket_fd is: %d\n", socket_fd);
+
+  client_sock_context *client_sock;
+  client_sock =(client_sock_context*)arg;
+
 	// file_pointers[0] -> Einstein_fp;
 	// file_pointers[1] -> *Twain_fp;
 	// file_pointers[2] -> *Computers_fp;
@@ -132,7 +154,7 @@ void * threadhandler(void * new_sock) {
   }
 
 	/* Read the values in the config file. */
-	readConfig(Categories, file_names);
+	readConfig(Categories, file_names, client_sock->configFileName);
 
 	for(int i = 0; i < 3; i++){
 		printf("FileName: %s\n", file_names[i]);
@@ -153,7 +175,7 @@ void * threadhandler(void * new_sock) {
 
 	do {
 		/* Read from client until it's closed the connection. */
-		if ((rval = recv(socket_fd, &req, sizeof(req),0)) < 0) {
+		if ((rval = recv(client_sock->sock_fd, &req, sizeof(req),0)) < 0) {
 			pdie("Reading stream message");
 		}
 		if (rval == 0) {
@@ -230,13 +252,13 @@ void * threadhandler(void * new_sock) {
 			else {
 				strcpy(response, "ERROR: The input category does not match the ones listed.\n");
 			}
-			if (send(socket_fd, &response, sizeof(response),0) < 0){
+			if (send(client_sock->sock_fd, &response, sizeof(response),0) < 0){
 				pdie("Writing on stream socket");
 			}
 		}
 	} while (rval != 0);
-	free(new_sock);
-	close(socket_fd);
+	free(client_sock);
+	close(client_sock->sock_fd);
 	fclose(file_pointers[0]);
 	fclose(file_pointers[1]);
 	fclose(file_pointers[2]);
@@ -246,13 +268,13 @@ void * threadhandler(void * new_sock) {
  * readConfig --- Read the config file and open the listed files.
  **********************************************************************/
 
-void readConfig(char **Categories, char **file_names) {
+void readConfig(char **Categories, char **file_names, char * config) {
   /* Open the files from the context file. */
   FILE *ptr_config_file;
   char f1[1024], f2[1024], f3[1024];
 
   // Open the file
-  ptr_config_file = fopen("config.txt", "r");
+  ptr_config_file = fopen(config, "r");
 
   // Read the three lines
   fgets(f1, 1024, ptr_config_file);
